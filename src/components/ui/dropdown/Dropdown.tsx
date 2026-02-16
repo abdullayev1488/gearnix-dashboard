@@ -1,5 +1,6 @@
 import type React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface DropdownProps {
   isOpen: boolean;
@@ -15,6 +16,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
   className = "",
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<{ top: number; right: number } | null>(
+    null
+  );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -28,19 +33,52 @@ export const Dropdown: React.FC<DropdownProps> = ({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", onClose, true); // Close on scroll to prevent detachment issues
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", onClose, true);
     };
   }, [onClose]);
 
-  if (!isOpen) return null;
+  useLayoutEffect(() => {
+    if (isOpen && triggerRef.current) {
+      const parent = triggerRef.current.parentElement;
+      if (parent) {
+        const rect = parent.getBoundingClientRect();
+        const scrollY = window.scrollY || document.documentElement.scrollTop;
+        const scrollX = window.scrollX || document.documentElement.scrollLeft;
+
+        setPosition({
+          top: rect.bottom + scrollY + 8,
+          right: document.body.offsetWidth - (rect.right + scrollX),
+        });
+      }
+    }
+  }, [isOpen]);
+
+  // Always render a hidden trigger div to hold the ref position
+  const anchor = <div ref={triggerRef} className="hidden" />;
+
+  if (!isOpen) return anchor;
 
   return (
-    <div
-      ref={dropdownRef}
-      className={`absolute z-40  right-0 mt-2  rounded-xl border border-gray-200 bg-white  shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark ${className}`}
-    >
-      {children}
-    </div>
+    <>
+      {anchor}
+      {position &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            style={{
+              top: `${position.top}px`,
+              right: `${position.right}px`,
+              position: "absolute",
+            }}
+            className={`z-[99999] rounded-xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark ${className}`}
+          >
+            {children}
+          </div>,
+          document.body
+        )}
+    </>
   );
 };

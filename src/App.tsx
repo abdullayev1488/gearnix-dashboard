@@ -18,6 +18,17 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import CategoryList from "./pages/Category/CategoryList";
+import AddCategory from "./pages/Category/AddCategory";
+import EditCategory from "./pages/Category/EditCategory";
+import BrandList from "./pages/Brand/BrandList";
+import AddBrand from "./pages/Brand/AddBrand";
+import EditBrand from "./pages/Brand/EditBrand";
+import ProductList from "./pages/Product/ProductList";
+import AddProduct from "./pages/Product/AddProduct";
+import EditProduct from "./pages/Product/EditProduct";
+import OrderList from "./pages/Order/OrderList";
+import AddOrder from "./pages/Order/AddOrder";
 
 export default function App() {
   return (
@@ -28,6 +39,25 @@ export default function App() {
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
             <Route index path="/" element={<Home />} />
+
+            {/* Categories */}
+            <Route path="/categories" element={<CategoryList />} />
+            <Route path="/new-category" element={<AddCategory />} />
+            <Route path="/edit-category/:id" element={<EditCategory />} />
+
+            {/* Brands */}
+            <Route path="/brands" element={<BrandList />} />
+            <Route path="/new-brand" element={<AddBrand />} />
+            <Route path="/edit-brand/:id" element={<EditBrand />} />
+
+            {/* Products */}
+            <Route path="/products" element={<ProductList />} />
+            <Route path="/new-product" element={<AddProduct />} />
+            <Route path="/edit-product/:id" element={<EditProduct />} />
+
+            {/* Orders */}
+            <Route path="/orders" element={<OrderList />} />
+            <Route path="/new-order" element={<AddOrder />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
