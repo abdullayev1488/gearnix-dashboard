@@ -16,6 +16,7 @@ export default function AddCategory() {
     }
 
     const handleImage = (e: any) => {
+      console.log(e);
       
     };
 

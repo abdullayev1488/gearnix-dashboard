@@ -17,36 +17,36 @@ import { MoreDotIcon } from "../../icons";
 
 
 
-const initialCategoryData = [
-    {
-        id: 1,
-        name: "Electronics",
-        image: "/images/category/electronics.png",
-        status: "Active",
-        count: 120,
-    },
-    {
-        id: 2,
-        name: "Fashion",
-        image: "/images/category/fashion.png",
-        status: "Active",
-        count: 350,
-    },
-    {
-        id: 3,
-        name: "Home & Garden",
-        image: "/images/category/home-garden.png",
-        status: "Active",
-        count: 210,
-    },
-    {
-        id: 4,
-        name: "Sports",
-        image: "/images/category/sports.png",
-        status: "Inactive",
-        count: 85,
-    },
-];
+// const initialCategoryData = [
+//     {
+//         id: 1,
+//         name: "Electronics",
+//         image: "/images/category/electronics.png",
+//         status: "Active",
+//         count: 120,
+//     },
+//     {
+//         id: 2,
+//         name: "Fashion",
+//         image: "/images/category/fashion.png",
+//         status: "Active",
+//         count: 350,
+//     },
+//     {
+//         id: 3,
+//         name: "Home & Garden",
+//         image: "/images/category/home-garden.png",
+//         status: "Active",
+//         count: 210,
+//     },
+//     {
+//         id: 4,
+//         name: "Sports",
+//         image: "/images/category/sports.png",
+//         status: "Inactive",
+//         count: 85,
+//     },
+// ];
 
 export default function CategoryList() {
     const navigate = useNavigate();
