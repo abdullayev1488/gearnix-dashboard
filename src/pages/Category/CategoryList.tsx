@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
@@ -15,15 +15,9 @@ import { Dropdown } from "../../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../../components/ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
 
-interface Category {
-    id: number;
-    name: string;
-    image: string;
-    status: string;
-    count: number;
-}
 
-const initialCategoryData: Category[] = [
+
+const initialCategoryData = [
     {
         id: 1,
         name: "Electronics",
@@ -59,18 +53,27 @@ export default function CategoryList() {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
-    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
+    const [categories, setCategories] = useState<any[]>([])
+
+    useEffect(() => {
+        fetch("http://localhost:3000/category/all")
+            .then(res => res.json())
+            .then(data => setCategories(data.data))
+    }
+        , [])
 
     // Modal states
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    const filteredCategories = initialCategoryData.filter((category) => {
-        const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === "all" || category.status.toLowerCase() === statusFilter.toLowerCase();
-        return matchesSearch && matchesStatus;
-    });
+    const filteredCategories = categories.filter((category) => {
+        const matchesSearch = category.name.toLowerCase().startsWith(searchTerm.toLowerCase());
+        const matchesStatus =statusFilter === "all" ? category : statusFilter ==='active' ?  category.status : !category.status 
+        return matchesSearch && matchesStatus
+
+    })
 
     const handleDropdownToggle = (id: number) => {
         setActiveDropdown(activeDropdown === id ? null : id);
@@ -118,7 +121,7 @@ export default function CategoryList() {
                     >
                         <option value="all">All</option>
                         <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="deactive">Inactive</option>
                     </select>
                 </div>
             </div>
@@ -148,11 +151,11 @@ export default function CategoryList() {
                         <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                             {filteredCategories.length > 0 ? (
                                 filteredCategories.map((category) => (
-                                    <TableRow key={category.id}>
+                                    <TableRow key={category._id}>
                                         <TableCell className="px-5 py-4 text-start">
                                             <div className="h-12 w-12 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                                                 <div className="flex h-full w-full items-center justify-center text-gray-400">
-                                                    📁
+                                                    <img src={category.images.shop} alt="" />
                                                 </div>
                                             </div>
                                         </TableCell>
@@ -162,24 +165,24 @@ export default function CategoryList() {
                                         <TableCell className="px-5 py-4 text-start text-theme-sm">
                                             <Badge
                                                 size="sm"
-                                                color={category.status === "Active" ? "success" : "warning"}
+                                                color={category.status ? "success" : "warning"}
                                             >
-                                                {category.status}
+                                                {category.status ? "Active" : "Deactive"}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
-                                            {category.count}
+                                            20
                                         </TableCell>
                                         <TableCell className="px-5 py-4 text-end">
                                             <div className="relative inline-block text-left">
                                                 <button
-                                                    onClick={() => handleDropdownToggle(category.id)}
+                                                    onClick={() => handleDropdownToggle(category._id)}
                                                     className="dropdown-toggle text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                                 >
                                                     <MoreDotIcon className="size-6" />
                                                 </button>
                                                 <Dropdown
-                                                    isOpen={activeDropdown === category.id}
+                                                    isOpen={activeDropdown === category._id}
                                                     onClose={() => setActiveDropdown(null)}
                                                     className="w-40"
                                                 >
@@ -244,29 +247,29 @@ export default function CategoryList() {
                 <div className="flex flex-col items-center text-center">
                     <div className="mb-4 h-24 w-24 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
                         <div className="flex h-full w-full items-center justify-center text-4xl text-gray-400">
-                            📁
+                            <img src={selectedCategory?.images?.shop} alt="" />
                         </div>
                     </div>
                     <h3 className="mb-2 text-xl font-bold text-gray-800 dark:text-white/90">
                         {selectedCategory?.name}
                     </h3>
                     <p className="mb-6 text-gray-500 dark:text-gray-400">
-                        Category ID: #{selectedCategory?.id}
+                        Category ID: #{selectedCategory?._id.slice(0, 3)}...
                     </p>
                     <div className="grid w-full grid-cols-2 gap-4 border-t border-gray-100 py-6 dark:border-gray-800">
                         <div className="text-start">
                             <span className="block text-xs font-medium uppercase text-gray-400">Status</span>
                             <Badge
                                 size="sm"
-                                color={selectedCategory?.status === "Active" ? "success" : "warning"}
+                                color={selectedCategory?.status ? "success" : "warning"}
                             >
-                                {selectedCategory?.status}
+                                {selectedCategory?.status ? "Active" : "Deactive"}
                             </Badge>
                         </div>
                         <div className="text-start">
                             <span className="block text-xs font-medium uppercase text-gray-400">Product Count</span>
                             <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
-                                {selectedCategory?.count} Products
+                                Products 69
                             </span>
                         </div>
                     </div>
@@ -315,7 +318,7 @@ export default function CategoryList() {
                             Status
                         </label>
                         <select
-                            defaultValue={selectedCategory?.status.toLowerCase()}
+                            defaultValue={selectedCategory?.status ? "Active" : "Deactive"}
                             className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                         >
                             <option value="active" className="dark:bg-gray-900 text-white">Active</option>
