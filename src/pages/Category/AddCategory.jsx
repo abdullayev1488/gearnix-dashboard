@@ -2,6 +2,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import ComponentCard from "../../components/common/ComponentCard";
 import { useState } from "react";
+import axios  from "axios"
 
 export default function AddCategory() {
 
@@ -17,15 +18,15 @@ export default function AddCategory() {
 
     const handleImage = (e) => {
         console.log(e);
-
+        //BURA HELE QALIR
     };
 
     const submitHandler = (e) => {
         e.preventDefault()
 
-        fetch('http://localhost:3000/category/create', {
-            method: "POST",
-            body: JSON.stringify({ ...payload, status: payload.status == '1' ? true : false })
+        axios.post('http://localhost:3000/category/create', {
+            ...payload,
+            status: payload.status == '1' ? true : false
         })
 
 

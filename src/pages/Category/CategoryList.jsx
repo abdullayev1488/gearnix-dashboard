@@ -14,39 +14,9 @@ import { Modal } from "../../components/ui/modal";
 import { Dropdown } from "../../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../../components/ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
+import api from "../../axios/axios";
 
 
-
-// const initialCategoryData = [
-//     {
-//         id: 1,
-//         name: "Electronics",
-//         image: "/images/category/electronics.png",
-//         status: "Active",
-//         count: 120,
-//     },
-//     {
-//         id: 2,
-//         name: "Fashion",
-//         image: "/images/category/fashion.png",
-//         status: "Active",
-//         count: 350,
-//     },
-//     {
-//         id: 3,
-//         name: "Home & Garden",
-//         image: "/images/category/home-garden.png",
-//         status: "Active",
-//         count: 210,
-//     },
-//     {
-//         id: 4,
-//         name: "Sports",
-//         image: "/images/category/sports.png",
-//         status: "Inactive",
-//         count: 85,
-//     },
-// ];
 
 export default function CategoryList() {
     const navigate = useNavigate();
@@ -55,13 +25,17 @@ export default function CategoryList() {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [categories, setCategories] = useState([])
+    const [trigger, setTrigger] = useState(true)
+    const deleteCategory = (id) => {
+        api.delete(`/category/delete/${id}`)
+    }
 
     useEffect(() => {
-        fetch("http://localhost:3000/category/all")
-            .then(res => res.json())
-            .then(data => setCategories(data.data))
-    }
-        , [])
+        api.get("category/all")
+            .then(res => { (setCategories(res.data.data)) })
+    }, [trigger])
+
+
 
     // Modal states
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -213,7 +187,7 @@ export default function CategoryList() {
                                                     <DropdownItem
                                                         className={dropdownItemStyles}
                                                         onClick={() => {
-                                                            navigate(`/edit-category/${category.id}`);
+                                                            navigate(`/edit-category/${category._id}`);
                                                             setActiveDropdown(null);
                                                         }}
                                                     >
@@ -368,6 +342,11 @@ export default function CategoryList() {
                         Cancel
                     </button>
                     <button
+                        onClick={() => {
+                            deleteCategory(selectedCategory._id);
+                            closeModals()
+                            setTrigger(prev => !prev)
+                        }}
                         className="flex w-full justify-center rounded-lg bg-error-500 p-3 font-medium text-white transition hover:bg-error-600"
                     >
                         Delete

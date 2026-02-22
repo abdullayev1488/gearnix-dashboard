@@ -2,22 +2,29 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import ComponentCard from "../../components/common/ComponentCard";
 import { useParams, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import api from "../../axios/axios";
 
 export default function EditCategory() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [categoryData, setCategoryData] = useState({ name: "", status: false, image: "" })
 
-    // Mock data for demonstration - in a real app, you'd fetch this using the id
-    const categoryData = {
-        name: "Electronics",
-        status: "active",
-        image: ""
-    };
+    useEffect(() => {
+        api.get(`/category/${id}`)
+            .then(res => {
+                setCategoryData(res.data.data);
+
+            })
+    }, [])
+
+console.log(categoryData);
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
         // Logic to update category
-        navigate("/categories");
+        // navigate("/categories");
     };
 
     return (
@@ -52,6 +59,7 @@ export default function EditCategory() {
                                 Category Name
                             </label>
                             <input
+                                disabled
                                 type="text"
                                 defaultValue={categoryData.name}
                                 placeholder="Enter category name"
@@ -64,11 +72,11 @@ export default function EditCategory() {
                                 Status
                             </label>
                             <select
-                                defaultValue={categoryData.status}
+                                value={categoryData.status ? "1" : "0"}
                                 className="w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 text-gray-800 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                             >
-                                <option value="active" className="dark:bg-gray-900 text-white">Active</option>
-                                <option value="inactive" className="dark:bg-gray-900 text-white">Inactive</option>
+                                <option value="1" className="dark:bg-gray-900 text-white">Active</option>
+                                <option value="0" className="dark:bg-gray-900 text-white">Inactive</option>
                             </select>
                         </div>
 
