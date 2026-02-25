@@ -179,6 +179,9 @@ export default function CategoryList() {
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                         Status
                                     </TableCell>
+                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                        Products
+                                    </TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-end text-theme-xs dark:text-gray-400">
                                         Actions
                                     </TableCell>
@@ -209,6 +212,9 @@ export default function CategoryList() {
                                                 >
                                                     {category.status ? "Active" : "Inactive"}
                                                 </Badge>
+                                            </TableCell>
+                                            <TableCell className="px-5 py-4 text-start text-theme-sm text-gray-500 dark:text-gray-400">
+                                                Product (20)
                                             </TableCell>
                                             <TableCell className="px-5 py-4 text-end">
                                                 <div className="relative inline-block text-left">

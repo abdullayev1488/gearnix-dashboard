@@ -1,55 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHeader,
-    TableRow,
-} from "../../components/ui/table";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import { Modal } from "../../components/ui/modal";
 import { Dropdown } from "../../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../../components/ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
-
-
-const initialBrandData = [
-    {
-        id: 1,
-        name: "Apple",
-        image: "/images/brand/apple.png",
-        website: "https://apple.com",
-        status: "Active",
-        productCount: 120,
-    },
-    {
-        id: 2,
-        name: "Samsung",
-        image: "/images/brand/samsung.png",
-        website: "https://samsung.com",
-        status: "Active",
-        productCount: 85,
-    },
-    {
-        id: 3,
-        name: "Nike",
-        image: "/images/brand/nike.png",
-        website: "https://nike.com",
-        status: "Active",
-        productCount: 45,
-    },
-    {
-        id: 4,
-        name: "Adidas",
-        image: "/images/brand/adidas.png",
-        website: "https://adidas.com",
-        status: "Active",
-        productCount: 65,
-    },
-];
+import api from "../../axios/axios";
+import toast from "react-hot-toast";
 
 export default function BrandList() {
     const navigate = useNavigate();
@@ -57,15 +17,77 @@ export default function BrandList() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [selectedBrand, setSelectedBrand] = useState(null);
+    const [brands, setBrands] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(false);
 
     // Modal states
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    const filteredBrands = initialBrandData.filter((brand) => {
-        const matchesSearch = brand.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === "all" || brand.status.toLowerCase() === statusFilter.toLowerCase();
+    // Status modal form state
+    const [statusFormData, setStatusFormData] = useState({ name: "", status: "1" });
+
+    const fetchBrands = async () => {
+        setLoading(true);
+        try {
+            const res = await api.get("/brand");
+            setBrands(res.data.data || []);
+        } catch (error) {
+            toast.error("Failed to fetch brands");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchBrands();
+    }, []);
+
+    const handleDelete = async () => {
+        if (!selectedBrand) return;
+        setActionLoading(true);
+        try {
+            const res = await api.delete(`/brand/${selectedBrand._id}`);
+            if (res.data.success) {
+                toast.success(res.data.message || "Brand deleted successfully");
+                fetchBrands();
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to delete brand");
+        } finally {
+            setActionLoading(false);
+            closeModals();
+        }
+    };
+
+    const handleStatusUpdate = async () => {
+        if (!selectedBrand) return;
+        setActionLoading(true);
+        try {
+            const res = await api.put(`/brand/${selectedBrand._id}`, {
+                name: statusFormData.name,
+                status: statusFormData.status === "1"
+            });
+            if (res.data.success) {
+                toast.success(res.data.message || "Brand updated successfully");
+                fetchBrands();
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to update brand");
+        } finally {
+            setActionLoading(false);
+            closeModals();
+        }
+    };
+
+    const filteredBrands = brands.filter((brand) => {
+        const matchesSearch = brand.name.toLowerCase().startsWith(searchTerm.toLowerCase());
+        const matchesStatus =
+            statusFilter === "all" ? true :
+                statusFilter === "active" ? brand.status :
+                    !brand.status;
         return matchesSearch && matchesStatus;
     });
 
@@ -80,7 +102,17 @@ export default function BrandList() {
         setSelectedBrand(null);
     };
 
-    const dropdownItemStyles = "dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white";
+    const openStatusModal = (brand) => {
+        setSelectedBrand(brand);
+        setStatusFormData({
+            name: brand.name,
+            status: brand.status ? "1" : "0"
+        });
+        setIsStatusModalOpen(true);
+        setActiveDropdown(null);
+    };
+
+    const dropdownItemStyles = "dark:text-white/70 dark:hover:bg-white/5 dark:hover:text-white";
 
     return (
         <>
@@ -90,6 +122,7 @@ export default function BrandList() {
             />
             <PageBreadcrumb pageTitle="Brands List" />
 
+            {/* Top Controls */}
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="relative w-full max-w-[300px]">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -113,158 +146,161 @@ export default function BrandList() {
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                     >
-                        <option value="all" className="dark:bg-gray-900">All</option>
-                        <option value="active" className="dark:bg-gray-900">Active</option>
-                        <option value="inactive" className="dark:bg-gray-900">Inactive</option>
+                        <option value="all">All</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
                     </select>
                 </div>
             </div>
 
+            {/* Table */}
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                 <div className="max-w-full overflow-x-auto">
-                    <Table>
-                        <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                            <TableRow>
-                                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Logo
-                                </TableCell>
-                                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Brand Name
-                                </TableCell>
-                                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Status
-                                </TableCell>
-                                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Products
-                                </TableCell>
-                                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-end text-theme-xs dark:text-gray-400">
-                                    Actions
-                                </TableCell>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                            {filteredBrands.length > 0 ? (
-                                filteredBrands.map((brand) => (
-                                    <TableRow key={brand.id}>
-                                        <TableCell className="px-5 py-4 text-start">
-                                            <div className="h-12 w-12 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 border dark:border-gray-700">
-                                                <div className="flex h-full w-full items-center justify-center text-gray-400">
-                                                    🏢
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="px-5 py-4 text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                                            {brand.name}
-                                        </TableCell>
-                                        <TableCell className="px-5 py-4 text-start text-theme-sm">
-                                            <Badge
-                                                size="sm"
-                                                color={brand.status === "Active" ? "success" : "warning"}
-                                            >
-                                                {brand.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
-                                            {brand.productCount}
-                                        </TableCell>
-                                        <TableCell className="px-5 py-4 text-end">
-                                            <div className="relative inline-block text-left">
-                                                <button
-                                                    onClick={() => handleDropdownToggle(brand.id)}
-                                                    className="dropdown-toggle text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                                                >
-                                                    <MoreDotIcon className="size-6" />
-                                                </button>
-                                                <Dropdown
-                                                    isOpen={activeDropdown === brand.id}
-                                                    onClose={() => setActiveDropdown(null)}
-                                                    className="w-40"
-                                                >
-                                                    <DropdownItem
-                                                        className={dropdownItemStyles}
-                                                        onClick={() => {
-                                                            setSelectedBrand(brand);
-                                                            setIsViewModalOpen(true);
-                                                            setActiveDropdown(null);
-                                                        }}
-                                                    >
-                                                        View Details
-                                                    </DropdownItem>
-                                                    <DropdownItem
-                                                        className={dropdownItemStyles}
-                                                        onClick={() => {
-                                                            setSelectedBrand(brand);
-                                                            setIsStatusModalOpen(true);
-                                                            setActiveDropdown(null);
-                                                        }}
-                                                    >
-                                                        Change Status
-                                                    </DropdownItem>
-                                                    <DropdownItem
-                                                        className={dropdownItemStyles}
-                                                        onClick={() => {
-                                                            navigate(`/edit-brand/${brand.id}`);
-                                                            setActiveDropdown(null);
-                                                        }}
-                                                    >
-                                                        Edit
-                                                    </DropdownItem>
-                                                    <DropdownItem
-                                                        className="text-error-500 hover:text-error-600 dark:hover:bg-error-500/10"
-                                                        onClick={() => {
-                                                            setSelectedBrand(brand);
-                                                            setIsDeleteModalOpen(true);
-                                                            setActiveDropdown(null);
-                                                        }}
-                                                    >
-                                                        Delete
-                                                    </DropdownItem>
-                                                </Dropdown>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
+                    {loading ? (
+                        <div className="flex items-center justify-center py-20">
+                            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand-500"></div>
+                        </div>
+                    ) : (
+                        <Table>
+                            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                                 <TableRow>
-                                    <TableCell colSpan={5} className="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
-                                        No brands found matching your criteria.
+                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                        Logo
+                                    </TableCell>
+                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                        Brand Name
+                                    </TableCell>
+                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                        Status
+                                    </TableCell>
+                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                        Products
+                                    </TableCell>
+                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-end text-theme-xs dark:text-gray-400">
+                                        Actions
                                     </TableCell>
                                 </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                                {filteredBrands.length > 0 ? (
+                                    filteredBrands.map((brand) => (
+                                        <TableRow key={brand._id}>
+                                            <TableCell className="px-5 py-4 text-start">
+                                                <div className="h-12 w-12 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                                                    <div className="flex h-full w-full items-center justify-center text-gray-400">
+                                                        {brand.image ? (
+                                                            <img src={brand.image} alt={brand.name} className="h-full w-full object-contain" />
+                                                        ) : (
+                                                            "🏷️"
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="px-5 py-4 text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                                {brand.name}
+                                            </TableCell>
+                                            <TableCell className="px-5 py-4 text-start text-theme-sm">
+                                                <Badge
+                                                    size="sm"
+                                                    color={brand.status ? "success" : "warning"}
+                                                >
+                                                    {brand.status ? "Active" : "Inactive"}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="px-5 py-4 text-start text-theme-sm text-gray-500 dark:text-gray-400">
+                                                Product (20)
+                                            </TableCell>
+                                            <TableCell className="px-5 py-4 text-end">
+                                                <div className="relative inline-block text-left">
+                                                    <button
+                                                        onClick={() => handleDropdownToggle(brand._id)}
+                                                        className="dropdown-toggle text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                                    >
+                                                        <MoreDotIcon className="size-6" />
+                                                    </button>
+                                                    <Dropdown
+                                                        isOpen={activeDropdown === brand._id}
+                                                        onClose={() => setActiveDropdown(null)}
+                                                        className="w-40"
+                                                    >
+                                                        <DropdownItem
+                                                            className={dropdownItemStyles}
+                                                            onClick={() => {
+                                                                setSelectedBrand(brand);
+                                                                setIsViewModalOpen(true);
+                                                                setActiveDropdown(null);
+                                                            }}
+                                                        >
+                                                            View Details
+                                                        </DropdownItem>
+                                                        <DropdownItem
+                                                            className={dropdownItemStyles}
+                                                            onClick={() => openStatusModal(brand)}
+                                                        >
+                                                            Quick Edit
+                                                        </DropdownItem>
+                                                        <DropdownItem
+                                                            className={dropdownItemStyles}
+                                                            onClick={() => {
+                                                                navigate(`/edit-brand/${brand._id}`);
+                                                                setActiveDropdown(null);
+                                                            }}
+                                                        >
+                                                            Edit
+                                                        </DropdownItem>
+                                                        <DropdownItem
+                                                            className="text-error-500 hover:text-error-600 dark:hover:bg-error-500/10"
+                                                            onClick={() => {
+                                                                setSelectedBrand(brand);
+                                                                setIsDeleteModalOpen(true);
+                                                                setActiveDropdown(null);
+                                                            }}
+                                                        >
+                                                            Delete
+                                                        </DropdownItem>
+                                                    </Dropdown>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
+                                            No brands found matching your criteria.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    )}
                 </div>
             </div>
 
             {/* View Modal */}
             <Modal isOpen={isViewModalOpen} onClose={closeModals} className="max-w-[500px] p-6">
                 <div className="flex flex-col items-center text-center">
-                    <div className="mb-4 h-24 w-24 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 border dark:border-gray-700">
+                    <div className="mb-4 h-24 w-24 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
                         <div className="flex h-full w-full items-center justify-center text-4xl text-gray-400">
-                            🏢
+                            {selectedBrand?.image ? (
+                                <img src={selectedBrand.image} alt="" className="h-full w-full object-contain p-2" />
+                            ) : "🏷️"}
                         </div>
                     </div>
                     <h3 className="mb-2 text-xl font-bold text-gray-800 dark:text-white/90">
                         {selectedBrand?.name}
                     </h3>
                     <p className="mb-6 text-gray-500 dark:text-gray-400">
-                        Brand ID: #{selectedBrand?.id}
+                        Brand ID: #{selectedBrand?._id?.slice(0, 8)}...
                     </p>
-                    <div className="grid w-full grid-cols-2 gap-4 border-t border-gray-100 py-6 dark:border-gray-800">
+                    <div className="w-full border-t border-gray-100 py-6 dark:border-gray-800">
                         <div className="text-start">
                             <span className="block text-xs font-medium uppercase text-gray-400">Status</span>
                             <Badge
                                 size="sm"
-                                color={selectedBrand?.status === "Active" ? "success" : "warning"}
+                                color={selectedBrand?.status ? "success" : "warning"}
                             >
-                                {selectedBrand?.status}
+                                {selectedBrand?.status ? "Active" : "Inactive"}
                             </Badge>
-                        </div>
-                        <div className="text-start">
-                            <span className="block text-xs font-medium uppercase text-gray-400">Product Count</span>
-                            <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
-                                {selectedBrand?.productCount} Products
-                            </span>
                         </div>
                     </div>
                     <button
@@ -276,34 +312,20 @@ export default function BrandList() {
                 </div>
             </Modal>
 
-            {/* Status/Quick Edit Modal */}
+            {/* Quick Edit / Status Modal */}
             <Modal isOpen={isStatusModalOpen} onClose={closeModals} className="max-w-[500px] p-6">
                 <h3 className="mb-6 text-xl font-bold text-gray-800 dark:text-white/90 text-center">
                     Quick Update Brand
                 </h3>
-                <form className="space-y-4">
-                    <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Brand Logo
-                        </label>
-                        <div className="flex items-center gap-4">
-                            <div className="h-20 w-20 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 border dark:border-gray-700 shrink-0">
-                                <div className="flex h-full w-full items-center justify-center text-2xl text-gray-400">
-                                    🏢
-                                </div>
-                            </div>
-                            <button type="button" className="text-sm font-medium text-brand-500 hover:underline">
-                                Change Logo
-                            </button>
-                        </div>
-                    </div>
+                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleStatusUpdate(); }}>
                     <div>
                         <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">
                             Brand Name
                         </label>
                         <input
                             type="text"
-                            defaultValue={selectedBrand?.name}
+                            value={statusFormData.name}
+                            onChange={(e) => setStatusFormData(prev => ({ ...prev, name: e.target.value }))}
                             className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/60"
                         />
                     </div>
@@ -312,11 +334,12 @@ export default function BrandList() {
                             Status
                         </label>
                         <select
-                            defaultValue={selectedBrand?.status.toLowerCase()}
+                            value={statusFormData.status}
+                            onChange={(e) => setStatusFormData(prev => ({ ...prev, status: e.target.value }))}
                             className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                         >
-                            <option value="active" className="dark:bg-gray-900 text-white">Active</option>
-                            <option value="inactive" className="dark:bg-gray-900 text-white">Inactive</option>
+                            <option value="1" className="dark:bg-gray-900 text-white">Active</option>
+                            <option value="0" className="dark:bg-gray-900 text-white">Inactive</option>
                         </select>
                     </div>
                     <div className="mt-6 flex gap-4">
@@ -328,10 +351,17 @@ export default function BrandList() {
                             Cancel
                         </button>
                         <button
-                            type="button"
-                            className="flex w-full justify-center rounded-lg bg-brand-500 p-3 font-medium text-white transition hover:bg-opacity-90"
+                            type="submit"
+                            disabled={actionLoading}
+                            className="flex w-full justify-center items-center gap-2 rounded-lg bg-brand-500 p-3 font-medium text-white transition hover:bg-opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            Update
+                            {actionLoading && (
+                                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                            )}
+                            {actionLoading ? "Updating..." : "Update"}
                         </button>
                     </div>
                 </form>
@@ -358,9 +388,17 @@ export default function BrandList() {
                         Cancel
                     </button>
                     <button
-                        className="flex w-full justify-center rounded-lg bg-error-500 p-3 font-medium text-white transition hover:bg-error-600"
+                        onClick={handleDelete}
+                        disabled={actionLoading}
+                        className="flex w-full justify-center items-center gap-2 rounded-lg bg-error-500 p-3 font-medium text-white transition hover:bg-error-600 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                        Delete
+                        {actionLoading && (
+                            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                        )}
+                        {actionLoading ? "Deleting..." : "Delete"}
                     </button>
                 </div>
             </Modal>

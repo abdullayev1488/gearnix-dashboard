@@ -260,12 +260,15 @@ const AppSidebar = () => {
               />
             </>
           ) : (
-            <img
-              src="/images/logo/logo-icon.svg"
-              alt="Logo"
-              width={32}
-              height={32}
-            />
+            <div className="rounded-full overflow-hidden scale-125">
+              <img
+                className="scale-140"
+                src="/games-logo.jpg"
+                alt="Logo"
+                width={40}
+                height={40}
+              />
+            </div>
           )}
         </Link>
       </div>
