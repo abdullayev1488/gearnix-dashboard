@@ -2,219 +2,238 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import ComponentCard from "../../components/common/ComponentCard";
 import { useParams, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import api from "../../axios/axios";
+import toast from "react-hot-toast";
 
 export default function EditProduct() {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // Mock data for demonstration
-    const productData = {
-        name: "Apple iPhone 14 Pro",
-        category: "electronics",
-        brand: "apple",
-        price: "999.00",
-        rate: "4.8",
-        shortDescription: "Premium smartphone with advanced camera system.",
-        fullDescription: "The iPhone 14 Pro features a 6.1-inch Super Retina XDR display with Always-On and ProMotion technology. Dynamic Island, a magical new way to interact with iPhone. 48MP Main camera for up to 4x greater resolution.",
-        stock: "25",
-        status: "active", 
-        sku: "IP14PRO-BK-256"
+    const [payload, setPayload] = useState({
+        name: "",
+        image: "",
+        price: "",
+        oldPrice: "",
+        rating: "",
+        reviews: "",
+        status: "1"
+    });
+    const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await api.get(`/product/${id}`);
+                const p = res.data.data;
+                setPayload({
+                    name: p.name || "",
+                    image: p.image || "",
+                    price: p.price !== undefined ? String(p.price) : "",
+                    oldPrice: p.oldPrice !== null && p.oldPrice !== undefined ? String(p.oldPrice) : "",
+                    rating: p.rating !== undefined ? String(p.rating) : "",
+                    reviews: p.reviews !== undefined ? String(p.reviews) : "",
+                    status: p.status ? "1" : "0"
+                });
+            } catch (error) {
+                toast.error("Failed to load product data");
+                navigate("/products");
+            } finally {
+                setFetching(false);
+            }
+        };
+        fetchProduct();
+    }, [id, navigate]);
+
+    const handlePayload = (e, key) => {
+        setPayload(prev => ({ ...prev, [key]: e.target.value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        navigate("/products");
+
+        if (!payload.name.trim()) {
+            toast.error("Product name is required");
+            return;
+        }
+        if (!payload.image.trim()) {
+            toast.error("Product image URL is required");
+            return;
+        }
+        if (!payload.price || Number(payload.price) < 0) {
+            toast.error("Valid product price is required");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const res = await api.put(`/product/${id}`, {
+                name: payload.name,
+                image: payload.image,
+                price: Number(payload.price),
+                oldPrice: payload.oldPrice ? Number(payload.oldPrice) : null,
+                rating: payload.rating ? Number(payload.rating) : 0,
+                reviews: payload.reviews ? Number(payload.reviews) : 0,
+                status: payload.status === "1"
+            });
+
+            if (res.data.success) {
+                toast.success(res.data.message || "Product updated successfully!");
+                navigate("/products");
+            }
+        } catch (error) {
+            const msg = error.response?.data?.message || "Failed to update product";
+            toast.error(msg);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    if (fetching) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-500"></div>
+            </div>
+        );
+    }
+
+    const inputClass = "w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 text-gray-800 outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/60";
+    const labelClass = "mb-2.5 block font-medium text-gray-800 dark:text-white/90";
 
     return (
         <>
             <PageMeta
-                title={`Edit Product ${id} - Gearnix Dashboard`}
+                title="Edit Product - Gearnix Dashboard"
                 description="Edit an existing product"
             />
             <PageBreadcrumb pageTitle="Edit Product" />
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <div className="space-y-6">
-                    <ComponentCard title="Basic Information">
-                        <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 gap-6">
+                <ComponentCard title="Product Information">
+                    <form className="space-y-6" onSubmit={handleSubmit}>
+                        {/* Product Name */}
+                        <div>
+                            <label className={labelClass}>Product Name</label>
+                            <input
+                                value={payload.name}
+                                onChange={(e) => handlePayload(e, "name")}
+                                type="text"
+                                placeholder="Enter product name"
+                                className={inputClass}
+                            />
+                        </div>
+
+                        {/* Image URL */}
+                        <div>
+                            <label className={labelClass}>Image URL</label>
+                            <input
+                                value={payload.image}
+                                onChange={(e) => handlePayload(e, "image")}
+                                type="text"
+                                placeholder="https://example.com/image.jpg"
+                                className={inputClass}
+                            />
+                            {payload.image && (
+                                <div className="mt-3 h-40 w-40 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <img src={payload.image} alt="Preview" className="h-full w-full object-cover" onError={(e) => e.target.style.display = 'none'} />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Price & Old Price */}
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
-                                <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                    Product Name
-                                </label>
+                                <label className={labelClass}>Price</label>
                                 <input
-                                    type="text"
-                                    defaultValue={productData.name}
-                                    placeholder="Enter product name"
-                                    className="w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-white/60"
+                                    value={payload.price}
+                                    onChange={(e) => handlePayload(e, "price")}
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    className={inputClass}
                                 />
                             </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                        Category
-                                    </label>
-                                    <select
-                                        defaultValue={productData.category}
-                                        className="w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                                    >
-                                        <option value="electronics" className="dark:bg-gray-800 text-white">Electronics</option>
-                                        <option value="fashion" className="dark:bg-gray-800 text-white">Fashion</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                        Brand
-                                    </label>
-                                    <select
-                                        defaultValue={productData.brand}
-                                        className="w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                                    >
-                                        <option value="apple" className="dark:bg-gray-800 text-white">Apple</option>
-                                        <option value="samsung" className="dark:bg-gray-800 text-white">Samsung</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                        Price
-                                    </label>
-                                    <div className="relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
-                                        <input
-                                            type="number"
-                                            defaultValue={productData.price}
-                                            placeholder="0.00"
-                                            className="w-full rounded-lg border border-gray-300 bg-transparent pl-8 pr-5 py-3 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-white/60"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                        Rate (0-5)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        max="5"
-                                        defaultValue={productData.rate}
-                                        placeholder="4.5"
-                                        className="w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-white/60"
-                                    />
-                                </div>
-                            </div>
-                        </form>
-                    </ComponentCard>
-
-                    <ComponentCard title="Product Description">
-                        <form className="space-y-4">
                             <div>
-                                <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                    Short Description
-                                </label>
-                                <textarea
-                                    rows={2}
-                                    defaultValue={productData.shortDescription}
-                                    placeholder="Enter short description"
-                                    className="w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-white/60"
-                                ></textarea>
-                            </div>
-
-                            <div>
-                                <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                    Full Description
-                                </label>
-                                <textarea
-                                    rows={6}
-                                    defaultValue={productData.fullDescription}
-                                    placeholder="Enter full product description"
-                                    className="w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-white/60"
-                                ></textarea>
-                            </div>
-                        </form>
-                    </ComponentCard>
-                </div>
-
-                <div className="space-y-6">
-                    <ComponentCard title="Inventory & Media">
-                        <form className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                        Stock Quantity
-                                    </label>
-                                    <input
-                                        type="number"
-                                        defaultValue={productData.stock}
-                                        placeholder="0"
-                                        className="w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-white/60"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                        Status
-                                    </label>
-                                    <select
-                                        defaultValue={productData.status}
-                                        className="w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                                    >
-                                        <option value="active" className="dark:bg-gray-800 text-white">Active</option>
-                                        <option value="inactive" className="dark:bg-gray-800 text-white">Inactive</option>
-                                        <option value="draft" className="dark:bg-gray-800 text-white">Draft</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                    SKU
-                                </label>
+                                <label className={labelClass}>Old Price (optional)</label>
                                 <input
-                                    type="text"
-                                    defaultValue={productData.sku}
-                                    placeholder="Enter product SKU"
-                                    className="w-full rounded-lg border border-gray-300 bg-transparent px-5 py-3 outline-none transition focus:border-brand-500 active:border-brand-500 disabled:cursor-default dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-white/60"
+                                    value={payload.oldPrice}
+                                    onChange={(e) => handlePayload(e, "oldPrice")}
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    className={inputClass}
                                 />
                             </div>
+                        </div>
 
+                        {/* Rating & Reviews */}
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
-                                <label className="mb-2.5 block font-medium text-gray-800 dark:text-white/90">
-                                    Product Images
-                                </label>
-                                <div className="flex items-center justify-center w-full">
-                                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-gray-600">
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-                                            </svg>
-                                            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                                        </div>
-                                        <input type="file" className="hidden" multiple />
-                                    </label>
-                                </div>
+                                <label className={labelClass}>Rating (0-5)</label>
+                                <input
+                                    value={payload.rating}
+                                    onChange={(e) => handlePayload(e, "rating")}
+                                    type="number"
+                                    min="0"
+                                    max="5"
+                                    step="0.1"
+                                    placeholder="0"
+                                    className={inputClass}
+                                />
                             </div>
+                            <div>
+                                <label className={labelClass}>Reviews Count</label>
+                                <input
+                                    value={payload.reviews}
+                                    onChange={(e) => handlePayload(e, "reviews")}
+                                    type="number"
+                                    min="0"
+                                    placeholder="0"
+                                    className={inputClass}
+                                />
+                            </div>
+                        </div>
 
-                            <div className="flex gap-4">
-                                <button
-                                    type="button"
-                                    onClick={() => navigate("/products")}
-                                    className="flex w-full justify-center rounded-lg border border-gray-300 p-3 font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-white/90 dark:hover:bg-gray-800"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="flex w-full justify-center rounded-lg bg-brand-500 p-3 font-medium text-white transition hover:bg-opacity-90"
-                                >
-                                    Save Changes
-                                </button>
-                            </div>
-                        </form>
-                    </ComponentCard>
-                </div>
+                        {/* Status */}
+                        <div>
+                            <label className={labelClass}>Status</label>
+                            <select
+                                value={payload.status}
+                                onChange={(e) => handlePayload(e, "status")}
+                                className={inputClass}
+                            >
+                                <option value="1" className="dark:bg-gray-900 text-white">Active</option>
+                                <option value="0" className="dark:bg-gray-900 text-white">Inactive</option>
+                            </select>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex gap-4">
+                            <button
+                                type="button"
+                                onClick={() => navigate("/products")}
+                                className="flex w-full justify-center rounded-lg border border-gray-300 p-3 font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-white/90 dark:hover:bg-gray-800"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="flex w-full justify-center items-center gap-2 rounded-lg bg-brand-500 p-3 font-medium text-white transition hover:bg-opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {loading && (
+                                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                    </svg>
+                                )}
+                                {loading ? "Saving..." : "Save Changes"}
+                            </button>
+                        </div>
+                    </form>
+                </ComponentCard>
             </div>
         </>
     );
