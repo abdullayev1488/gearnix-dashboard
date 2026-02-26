@@ -19,13 +19,29 @@ import toast from "react-hot-toast";
 
 export default function ProductList() {
     const navigate = useNavigate();
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
-    const [activeDropdown, setActiveDropdown] = useState(null);
-    const [selectedProduct, setSelectedProduct] = useState(null);
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [paginationData, setPaginationData] = useState({
+        total: 0,
+        pages: 0,
+        limit: 10
+    });
+
+    // Filter states
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedBrand, setSelectedBrand] = useState("");
+    const [minPrice, setMinPrice] = useState("");
+    const [maxPrice, setMaxPrice] = useState("");
+    const [activeDropdown, setActiveDropdown] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     // Modal states
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -35,11 +51,24 @@ export default function ProductList() {
     // Status modal form state
     const [statusFormData, setStatusFormData] = useState({ name: "", status: "1", price: "" });
 
-    const fetchProducts = async () => {
+    const fetchProducts = async (page = 1, search = searchTerm, status = statusFilter, category = selectedCategory, brand = selectedBrand, min = minPrice, max = maxPrice) => {
         setLoading(true);
         try {
-            const res = await api.get("/product");
-            setProducts(res.data.data || []);
+            const res = await api.get("/product", {
+                params: {
+                    page,
+                    limit: 10,
+                    search,
+                    status,
+                    category,
+                    brand,
+                    minPrice: min,
+                    maxPrice: max
+                }
+            });
+            setProducts(res.data.data.products || []);
+            setPaginationData(res.data.data.pagination);
+            setCurrentPage(res.data.data.pagination.page);
         } catch (error) {
             toast.error("Failed to fetch products");
         } finally {
@@ -47,9 +76,42 @@ export default function ProductList() {
         }
     };
 
+    const fetchCategories = async () => {
+        try {
+            const res = await api.get("/category");
+            setCategories(res.data.data || []);
+        } catch (error) {
+            toast.error("Failed to fetch categories");
+        }
+    };
+
+    const fetchBrands = async () => {
+        try {
+            const res = await api.get("/brand");
+            setBrands(res.data.data || []);
+        } catch (error) {
+            toast.error("Failed to fetch brands");
+        }
+    };
+
     useEffect(() => {
-        fetchProducts();
+        fetchCategories();
+        fetchBrands();
     }, []);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            fetchProducts(1, searchTerm, statusFilter, selectedCategory, selectedBrand, minPrice, maxPrice);
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm, statusFilter, selectedCategory, selectedBrand, minPrice, maxPrice]);
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= paginationData.pages) {
+            fetchProducts(newPage, searchTerm, statusFilter, selectedCategory, minPrice, maxPrice);
+        }
+    };
 
     const handleDelete = async () => {
         if (!selectedProduct) return;
@@ -89,14 +151,6 @@ export default function ProductList() {
         }
     };
 
-    const filteredProducts = products.filter((product) => {
-        const matchesSearch = product.name.toLowerCase().startsWith(searchTerm.toLowerCase());
-        const matchesStatus =
-            statusFilter === "all" ? true :
-                statusFilter === "active" ? product.status :
-                    !product.status;
-        return matchesSearch && matchesStatus;
-    });
 
     const handleDropdownToggle = (id) => {
         setActiveDropdown(activeDropdown === id ? null : id);
@@ -154,33 +208,100 @@ export default function ProductList() {
             <PageBreadcrumb pageTitle="Products List" />
 
             {/* Top Controls */}
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="relative w-full max-w-[300px]">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </span>
-                    <input
-                        type="text"
-                        placeholder="Search products..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-11 pr-4 text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/60"
-                    />
+            <div className="mb-6 space-y-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="relative w-full max-w-[300px]">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </span>
+                        <input
+                            type="text"
+                            placeholder="Search products..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-11 pr-4 text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/60"
+                        />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-400">Category:</label>
+                            <select
+                                value={selectedCategory}
+                                onChange={(e) => setSelectedCategory(e.target.value)}
+                                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                            >
+                                <option value="">All Categories</option>
+                                {categories.map((cat) => (
+                                    <option key={cat._id} value={cat._id}>{cat.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-400">Brand:</label>
+                            <select
+                                value={selectedBrand}
+                                onChange={(e) => setSelectedBrand(e.target.value)}
+                                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                            >
+                                <option value="">All Brands</option>
+                                {brands.map((b) => (
+                                    <option key={b._id} value={b._id}>{b.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-400">Status:</label>
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                            >
+                                <option value="all">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-400 text-nowrap">Filter Status:</label>
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                    >
-                        <option value="all">All</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
+                <div className="flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 dark:border-white/[0.05]">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-400">
+                        Price Range:
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="number"
+                            placeholder="Min Price"
+                            value={minPrice}
+                            onChange={(e) => setMinPrice(e.target.value)}
+                            className="w-24 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                        />
+                        <span className="text-gray-400">-</span>
+                        <input
+                            type="number"
+                            placeholder="Max Price"
+                            value={maxPrice}
+                            onChange={(e) => setMaxPrice(e.target.value)}
+                            className="w-24 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 outline-none transition focus:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                        />
+                    </div>
+                    {(selectedCategory || statusFilter !== "all" || searchTerm || minPrice || maxPrice) && (
+                        <button
+                            onClick={() => {
+                                setSelectedCategory("");
+                                setStatusFilter("all");
+                                setSearchTerm("");
+                                setMinPrice("");
+                                setMaxPrice("");
+                            }}
+                            className="text-xs font-medium text-brand-500 hover:underline"
+                        >
+                            Reset Filters
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -202,6 +323,9 @@ export default function ProductList() {
                                         Product Name
                                     </TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                        Category
+                                    </TableCell>
+                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                         Price
                                     </TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
@@ -216,8 +340,8 @@ export default function ProductList() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                                {filteredProducts.length > 0 ? (
-                                    filteredProducts.map((product) => (
+                                {products.length > 0 ? (
+                                    products.map((product) => (
                                         <TableRow key={product._id}>
                                             <TableCell className="px-5 py-4 text-start">
                                                 <div className="h-12 w-12 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
@@ -232,6 +356,11 @@ export default function ProductList() {
                                             </TableCell>
                                             <TableCell className="px-5 py-4 text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
                                                 {product.name}
+                                            </TableCell>
+                                            <TableCell className="px-5 py-4 text-start text-theme-sm">
+                                                <Badge size="sm" color="light">
+                                                    {product.category?.name || "Uncategorized"}
+                                                </Badge>
                                             </TableCell>
                                             <TableCell className="px-5 py-4 text-start text-theme-sm">
                                                 <div>
@@ -310,7 +439,7 @@ export default function ProductList() {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
+                                        <TableCell colSpan={7} className="px-5 py-10 text-center text-gray-500 dark:text-gray-400">
                                             No products found matching your criteria.
                                         </TableCell>
                                     </TableRow>
@@ -320,6 +449,49 @@ export default function ProductList() {
                     )}
                 </div>
             </div>
+
+            {/* Pagination Controls */}
+            {paginationData.pages > 1 && (
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Showing <span className="font-medium text-gray-800 dark:text-white">{(currentPage - 1) * paginationData.limit + 1}</span> to <span className="font-medium text-gray-800 dark:text-white">{Math.min(currentPage * paginationData.limit, paginationData.total)}</span> of <span className="font-medium text-gray-800 dark:text-white">{paginationData.total}</span> products
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:bg-gray-50 disabled:opacity-50 dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-gray-400"
+                        >
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        {Array.from({ length: paginationData.pages }, (_, i) => i + 1).map((page) => (
+                            <button
+                                key={page}
+                                onClick={() => handlePageChange(page)}
+                                className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition ${currentPage === page
+                                    ? "bg-brand-500 text-white"
+                                    : "border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-gray-400"
+                                    }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === paginationData.pages}
+                            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:bg-gray-50 disabled:opacity-50 dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-gray-400"
+                        >
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* View Modal */}
             <Modal isOpen={isViewModalOpen} onClose={closeModals} className="max-w-[500px] p-6">

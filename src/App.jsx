@@ -25,10 +25,6 @@ const EditProduct = lazy(() => import("./pages/Product/EditProduct"));
 const OrderList = lazy(() => import("./pages/Order/OrderList"));
 const AddOrder = lazy(() => import("./pages/Order/AddOrder"));
 
-// Auth
-const SignIn = lazy(() => import("./pages/AuthPages/SignIn"));
-const SignUp = lazy(() => import("./pages/AuthPages/SignUp"));
-
 // Other
 const NotFound = lazy(() => import("./pages/OtherPage/NotFound"));
 
@@ -70,8 +66,7 @@ export default function App() {
             </Route>
 
             {/* Auth Layout */}
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
+          
 
             {/* Fallback Route */}
             <Route path="*" element={<NotFound />} />

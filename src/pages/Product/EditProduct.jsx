@@ -17,10 +17,24 @@ export default function EditProduct() {
         oldPrice: "",
         rating: "",
         reviews: "",
-        status: "1"
+        status: "1",
+        category: ""
     });
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await api.get("/category");
+                setCategories(res.data.data || []);
+            } catch (error) {
+                toast.error("Failed to load categories");
+            }
+        };
+        fetchCategories();
+    }, []);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -34,7 +48,8 @@ export default function EditProduct() {
                     oldPrice: p.oldPrice !== null && p.oldPrice !== undefined ? String(p.oldPrice) : "",
                     rating: p.rating !== undefined ? String(p.rating) : "",
                     reviews: p.reviews !== undefined ? String(p.reviews) : "",
-                    status: p.status ? "1" : "0"
+                    status: p.status ? "1" : "0",
+                    category: p.category?._id || p.category || ""
                 });
             } catch (error) {
                 toast.error("Failed to load product data");
@@ -75,7 +90,8 @@ export default function EditProduct() {
                 oldPrice: payload.oldPrice ? Number(payload.oldPrice) : null,
                 rating: payload.rating ? Number(payload.rating) : 0,
                 reviews: payload.reviews ? Number(payload.reviews) : 0,
-                status: payload.status === "1"
+                status: payload.status === "1",
+                category: payload.category
             });
 
             if (res.data.success) {
@@ -196,17 +212,34 @@ export default function EditProduct() {
                             </div>
                         </div>
 
-                        {/* Status */}
-                        <div>
-                            <label className={labelClass}>Status</label>
-                            <select
-                                value={payload.status}
-                                onChange={(e) => handlePayload(e, "status")}
-                                className={inputClass}
-                            >
-                                <option value="1" className="dark:bg-gray-900 text-white">Active</option>
-                                <option value="0" className="dark:bg-gray-900 text-white">Inactive</option>
-                            </select>
+                        {/* Category & Status */}
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label className={labelClass}>Category</label>
+                                <select
+                                    value={payload.category}
+                                    onChange={(e) => handlePayload(e, "category")}
+                                    className={inputClass}
+                                >
+                                    <option value="" className="dark:bg-gray-900 text-white">Select Category</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat._id} value={cat._id} className="dark:bg-gray-900 text-white">
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>Status</label>
+                                <select
+                                    value={payload.status}
+                                    onChange={(e) => handlePayload(e, "status")}
+                                    className={inputClass}
+                                >
+                                    <option value="1" className="dark:bg-gray-900 text-white">Active</option>
+                                    <option value="0" className="dark:bg-gray-900 text-white">Inactive</option>
+                                </select>
+                            </div>
                         </div>
 
                         {/* Buttons */}
