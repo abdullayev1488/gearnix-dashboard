@@ -18,29 +18,20 @@ export default function EditProduct() {
         rating: "",
         reviews: "",
         status: "1",
-        category: ""
+        category: "",
+        brand: ""
     });
     const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
-
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const res = await api.get("/category");
-                setCategories(res.data.data || []);
-            } catch (error) {
-                toast.error("Failed to load categories");
-            }
-        };
-        fetchCategories();
-    }, []);
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 const res = await api.get(`/product/${id}`);
-                const p = res.data.data;
+                const { product: p, categories, brands } = res.data.data;
+
                 setPayload({
                     name: p.name || "",
                     image: p.image || "",
@@ -49,8 +40,12 @@ export default function EditProduct() {
                     rating: p.rating !== undefined ? String(p.rating) : "",
                     reviews: p.reviews !== undefined ? String(p.reviews) : "",
                     status: p.status ? "1" : "0",
-                    category: p.category?._id || p.category || ""
+                    category: p.category?._id || p.category || "",
+                    brand: p.brand?._id || p.brand || ""
                 });
+
+                if (categories) setCategories(categories);
+                if (brands) setBrands(brands);
             } catch (error) {
                 toast.error("Failed to load product data");
                 navigate("/products");
@@ -91,7 +86,8 @@ export default function EditProduct() {
                 rating: payload.rating ? Number(payload.rating) : 0,
                 reviews: payload.reviews ? Number(payload.reviews) : 0,
                 status: payload.status === "1",
-                category: payload.category
+                category: payload.category,
+                brand: payload.brand
             });
 
             if (res.data.success) {
@@ -212,7 +208,7 @@ export default function EditProduct() {
                             </div>
                         </div>
 
-                        {/* Category & Status */}
+                        {/* Category & Brand */}
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <label className={labelClass}>Category</label>
@@ -230,16 +226,33 @@ export default function EditProduct() {
                                 </select>
                             </div>
                             <div>
-                                <label className={labelClass}>Status</label>
+                                <label className={labelClass}>Brand</label>
                                 <select
-                                    value={payload.status}
-                                    onChange={(e) => handlePayload(e, "status")}
+                                    value={payload.brand}
+                                    onChange={(e) => handlePayload(e, "brand")}
                                     className={inputClass}
                                 >
-                                    <option value="1" className="dark:bg-gray-900 text-white">Active</option>
-                                    <option value="0" className="dark:bg-gray-900 text-white">Inactive</option>
+                                    <option value="" className="dark:bg-gray-900 text-white">Select Brand</option>
+                                    {brands.map((b) => (
+                                        <option key={b._id} value={b._id} className="dark:bg-gray-900 text-white">
+                                            {b.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
+                        </div>
+
+                        {/* Status */}
+                        <div>
+                            <label className={labelClass}>Status</label>
+                            <select
+                                value={payload.status}
+                                onChange={(e) => handlePayload(e, "status")}
+                                className={inputClass}
+                            >
+                                <option value="1" className="dark:bg-gray-900 text-white">Active</option>
+                                <option value="0" className="dark:bg-gray-900 text-white">Inactive</option>
+                            </select>
                         </div>
 
                         {/* Buttons */}

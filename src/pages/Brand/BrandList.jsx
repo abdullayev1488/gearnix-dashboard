@@ -208,7 +208,7 @@ export default function BrandList() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="px-5 py-4 text-start text-theme-sm text-gray-500 dark:text-gray-400">
-                                                Product (20)
+                                                Product ({brand.products.length})
                                             </TableCell>
                                             <TableCell className="px-5 py-4 text-end">
                                                 <div className="relative inline-block text-left">

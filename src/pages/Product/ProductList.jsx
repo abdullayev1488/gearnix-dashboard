@@ -66,38 +66,20 @@ export default function ProductList() {
                     maxPrice: max
                 }
             });
-            setProducts(res.data.data.products || []);
-            setPaginationData(res.data.data.pagination);
-            setCurrentPage(res.data.data.pagination.page);
+            const { products, pagination, categories, brands } = res.data.data;
+            setProducts(products || []);
+            setPaginationData(pagination);
+            setCurrentPage(pagination.page);
+
+            // Set categories and brands if they are provided
+            if (categories) setCategories(categories);
+            if (brands) setBrands(brands);
         } catch (error) {
             toast.error("Failed to fetch products");
         } finally {
             setLoading(false);
         }
     };
-
-    const fetchCategories = async () => {
-        try {
-            const res = await api.get("/category");
-            setCategories(res.data.data || []);
-        } catch (error) {
-            toast.error("Failed to fetch categories");
-        }
-    };
-
-    const fetchBrands = async () => {
-        try {
-            const res = await api.get("/brand");
-            setBrands(res.data.data || []);
-        } catch (error) {
-            toast.error("Failed to fetch brands");
-        }
-    };
-
-    useEffect(() => {
-        fetchCategories();
-        fetchBrands();
-    }, []);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {

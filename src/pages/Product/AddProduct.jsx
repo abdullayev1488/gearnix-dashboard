@@ -14,24 +14,30 @@ export default function AddProduct() {
         rating: "",
         reviews: "",
         status: "1",
-        category: ""
+        category: "",
+        brand: ""
     });
     const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [fetchingCategories, setFetchingCategories] = useState(true);
+    const [fetchingData, setFetchingData] = useState(true);
 
     useEffect(() => {
-        const fetchCategories = async () => {
+        const fetchData = async () => {
             try {
-                const res = await api.get("/category");
-                setCategories(res.data.data || []);
+                const [catRes, brandRes] = await Promise.all([
+                    api.get("/category"),
+                    api.get("/brand")
+                ]);
+                setCategories(catRes.data.data || []);
+                setBrands(brandRes.data.data || []);
             } catch (error) {
-                toast.error("Failed to load categories");
+                toast.error("Failed to load form data");
             } finally {
-                setFetchingCategories(false);
+                setFetchingData(false);
             }
         };
-        fetchCategories();
+        fetchData();
     }, []);
 
     const handlePayload = (e, key) => {
@@ -47,7 +53,8 @@ export default function AddProduct() {
             rating: "",
             reviews: "",
             status: "1",
-            category: ""
+            category: "",
+            brand: ""
         });
     };
 
@@ -81,7 +88,8 @@ export default function AddProduct() {
                 rating: payload.rating ? Number(payload.rating) : 0,
                 reviews: payload.reviews ? Number(payload.reviews) : 0,
                 status: payload.status === "1",
-                category: payload.category
+                category: payload.category,
+                brand: payload.brand
             });
 
             if (res.data.success) {
@@ -194,7 +202,7 @@ export default function AddProduct() {
                             </div>
                         </div>
 
-                        {/* Category & Status */}
+                        {/* Category & Brand */}
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <label className={labelClass}>Category</label>
@@ -202,7 +210,7 @@ export default function AddProduct() {
                                     value={payload.category}
                                     onChange={(e) => handlePayload(e, "category")}
                                     className={inputClass}
-                                    disabled={fetchingCategories}
+                                    disabled={fetchingData}
                                 >
                                     <option value="" className="dark:bg-gray-900 text-white">Select Category</option>
                                     {categories.map((cat) => (
@@ -213,16 +221,34 @@ export default function AddProduct() {
                                 </select>
                             </div>
                             <div>
-                                <label className={labelClass}>Status</label>
+                                <label className={labelClass}>Brand</label>
                                 <select
-                                    value={payload.status}
-                                    onChange={(e) => handlePayload(e, "status")}
+                                    value={payload.brand}
+                                    onChange={(e) => handlePayload(e, "brand")}
                                     className={inputClass}
+                                    disabled={fetchingData}
                                 >
-                                    <option value="1" className="dark:bg-gray-900 text-white">Active</option>
-                                    <option value="0" className="dark:bg-gray-900 text-white">Inactive</option>
+                                    <option value="" className="dark:bg-gray-900 text-white">Select Brand</option>
+                                    {brands.map((b) => (
+                                        <option key={b._id} value={b._id}>
+                                            {b.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
+                        </div>
+
+                        {/* Status */}
+                        <div>
+                            <label className={labelClass}>Status</label>
+                            <select
+                                value={payload.status}
+                                onChange={(e) => handlePayload(e, "status")}
+                                className={inputClass}
+                            >
+                                <option value="1" className="dark:bg-gray-900 text-white">Active</option>
+                                <option value="0" className="dark:bg-gray-900 text-white">Inactive</option>
+                            </select>
                         </div>
 
                         {/* Submit */}
