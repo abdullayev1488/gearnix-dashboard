@@ -6,10 +6,11 @@ import {
   BoxIconLine,
   ChevronDownIcon,
   GridIcon,
+  GroupIcon,
   HorizontaLDots,
   ListIcon,
-} from "../icons";
-import { useSidebar } from "../context/SidebarContext";
+} from "@/icons";
+import { useSidebar } from "@/context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 
 
@@ -18,6 +19,11 @@ const navItems = [
     icon: <GridIcon />,
     name: "Dashboard",
     path: "/",
+  },
+  {
+    icon: <GroupIcon />,
+    name: "Users",
+    path: "/users",
   },
 
   {

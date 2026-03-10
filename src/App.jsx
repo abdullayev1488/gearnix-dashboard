@@ -21,6 +21,9 @@ const ProductList = lazy(() => import("./pages/Product/ProductList"));
 const AddProduct = lazy(() => import("./pages/Product/AddProduct"));
 const EditProduct = lazy(() => import("./pages/Product/EditProduct"));
 
+// Users
+const UserList = lazy(() => import("./pages/User/UserList"));
+
 // Orders
 const OrderList = lazy(() => import("./pages/Order/OrderList"));
 const AddOrder = lazy(() => import("./pages/Order/AddOrder"));
@@ -45,6 +48,9 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route index path="/" element={<Home />} />
 
+              {/* Users */}
+              <Route path="/users" element={<UserList />} />
+
               {/* Categories */}
               <Route path="/categories" element={<CategoryList />} />
               <Route path="/new-category" element={<AddCategory />} />
@@ -66,7 +72,7 @@ export default function App() {
             </Route>
 
             {/* Auth Layout */}
-          
+
 
             {/* Fallback Route */}
             <Route path="*" element={<NotFound />} />
