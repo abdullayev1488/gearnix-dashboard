@@ -1,9 +1,9 @@
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
-import ComponentCard from "../../components/common/ComponentCard";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import PageMeta from "@/components/common/PageMeta";
+import ComponentCard from "@/components/common/ComponentCard";
 import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
-import api from "../../axios/axios";
+import api from "@/axios/axios";
 import toast from "react-hot-toast";
 
 export default function EditBrand() {

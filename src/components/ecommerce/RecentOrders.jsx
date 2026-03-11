@@ -5,12 +5,12 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import Badge from "../ui/badge/Badge";
+import Badge from "@/components/ui/badge/Badge";
 
 // Define the TypeScript interface for the table rows
 
 // Define the table data using the interface
-const tableData= [
+const tableData = [
   {
     id: 1,
     name: "MacBook Pro 13”",
@@ -179,8 +179,8 @@ export default function RecentOrders() {
                     size="sm"
                     color={
                       product.status === "Delivered"
-                        ? "success": product.status === "Pending"
-                        ? "warning": "error"
+                        ? "success" : product.status === "Pending"
+                          ? "warning" : "error"
                     }
                   >
                     {product.status}

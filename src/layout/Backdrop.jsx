@@ -1,6 +1,6 @@
-import { useSidebar } from "../context/SidebarContext";
+import { useSidebar } from "@/context/SidebarContext";
 
-const Backdrop = () => {
+export const Backdrop = () => {
   const { isMobileOpen, toggleMobileSidebar } = useSidebar();
 
   if (!isMobileOpen) return null;
@@ -12,5 +12,3 @@ const Backdrop = () => {
     />
   );
 };
-
-export default Backdrop;

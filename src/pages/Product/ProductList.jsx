@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import PageMeta from "@/components/common/PageMeta";
 import {
     Table,
     TableBody,
@@ -9,12 +9,12 @@ import {
     TableHeader,
     TableRow,
 } from "../../components/ui/table";
-import Badge from "../../components/ui/badge/Badge";
-import { Modal } from "../../components/ui/modal";
-import { Dropdown } from "../../components/ui/dropdown/Dropdown";
-import { DropdownItem } from "../../components/ui/dropdown/DropdownItem";
-import { MoreDotIcon } from "../../icons";
-import api from "../../axios/axios";
+import Badge from "@/components/ui/badge/Badge";
+import { Modal } from "@/components/ui/modal";
+import { Dropdown } from "@/components/ui/dropdown/Dropdown";
+import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
+import { MoreDotIcon } from "@/icons";
+import api from "@/axios/axios";
 import toast from "react-hot-toast";
 
 export default function ProductList() {

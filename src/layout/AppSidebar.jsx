@@ -1,17 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
-// Assume these icons are imported from an icon library
 import {
-  BoxIconLine,
   ChevronDownIcon,
   GridIcon,
-  GroupIcon,
   HorizontaLDots,
   ListIcon,
+  GroupIcon,
+  BoxIconLine,
 } from "@/icons";
 import { useSidebar } from "@/context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
+import SidebarWidget from "@/layout/SidebarWidget";
 
 
 const navItems = [
@@ -55,15 +54,12 @@ const navItems = [
   {
     name: "Orders",
     icon: <ListIcon />,
-    subItems: [
-      { name: "Orders List", path: "/orders" },
-      { name: "New Order", path: "/new-order" },
-    ],
+    path: "/orders",
   },
 ];
 
 
-const AppSidebar = () => {
+export const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
@@ -233,7 +229,7 @@ const AppSidebar = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-[width,transform] duration-300 ease-in-out z-50 border-r border-gray-200 
         ${isExpanded || isMobileOpen
           ? "w-[290px]" : isHovered
             ? "w-[290px]" : "w-[90px]"
@@ -302,5 +298,3 @@ const AppSidebar = () => {
     </aside>
   );
 };
-
-export default AppSidebar;

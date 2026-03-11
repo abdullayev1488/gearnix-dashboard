@@ -1,32 +1,33 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router";
-import AppLayout from "./layout/AppLayout";
-import { ScrollToTop } from "./components/common/ScrollToTop";
+import { AppLayout } from "@/layout/AppLayout";
+import { ScrollToTop } from "@/components/common/ScrollToTop";
+// import { SignIn } from "@/pages/AuthPages/SignIn";
 
 // Dashboard
-const Home = lazy(() => import("./pages/Dashboard/Home"));
+const Home = lazy(() => import("@/pages/Dashboard/Home"));
 
 // Categories
-const CategoryList = lazy(() => import("./pages/Category/CategoryList"));
-const AddCategory = lazy(() => import("./pages/Category/AddCategory"));
-const EditCategory = lazy(() => import("./pages/Category/EditCategory"));
+const CategoryList = lazy(() => import("@/pages/Category/CategoryList"));
+const AddCategory = lazy(() => import("@/pages/Category/AddCategory"));
+const EditCategory = lazy(() => import("@/pages/Category/EditCategory"));
 
 // Brands
-const BrandList = lazy(() => import("./pages/Brand/BrandList"));
-const AddBrand = lazy(() => import("./pages/Brand/AddBrand"));
-const EditBrand = lazy(() => import("./pages/Brand/EditBrand"));
+const BrandList = lazy(() => import("@/pages/Brand/BrandList"));
+const AddBrand = lazy(() => import("@/pages/Brand/AddBrand"));
+const EditBrand = lazy(() => import("@/pages/Brand/EditBrand"));
 
 // Products
-const ProductList = lazy(() => import("./pages/Product/ProductList"));
-const AddProduct = lazy(() => import("./pages/Product/AddProduct"));
-const EditProduct = lazy(() => import("./pages/Product/EditProduct"));
+const ProductList = lazy(() => import("@/pages/Product/ProductList"));
+const AddProduct = lazy(() => import("@/pages/Product/AddProduct"));
+const EditProduct = lazy(() => import("@/pages/Product/EditProduct"));
 
 // Users
-const UserList = lazy(() => import("./pages/User/UserList"));
+const UserList = lazy(() => import("@/pages/User/UserList"));
+// const UserProfiles = lazy(() => import("@/pages/UserProfiles"));
 
 // Orders
-const OrderList = lazy(() => import("./pages/Order/OrderList"));
-const AddOrder = lazy(() => import("./pages/Order/AddOrder"));
+const OrderList = lazy(() => import("@/pages/Order/OrderList"));
 
 // Other
 const NotFound = lazy(() => import("./pages/OtherPage/NotFound"));
@@ -68,7 +69,6 @@ export default function App() {
 
               {/* Orders */}
               <Route path="/orders" element={<OrderList />} />
-              <Route path="/new-order" element={<AddOrder />} />
             </Route>
 
             {/* Auth Layout */}

@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import Chart from "react-apexcharts";
 import flatpickr from "flatpickr";
-import ChartTab from "../common/ChartTab";
-import { CalenderIcon } from "../../icons";
+import ChartTab from "@/components/common/ChartTab";
+import { CalenderIcon } from "@/icons";
 
 export default function StatisticsChart() {
   const datePickerRef = useRef(null);
@@ -58,7 +58,7 @@ export default function StatisticsChart() {
     xaxis: {
       type: "category",
       categories: [
-        "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
       ],
       axisBorder: { show: false },
       axisTicks: { show: false },
@@ -72,8 +72,8 @@ export default function StatisticsChart() {
   };
 
   const series = [
-    { name: "Sales", data: [180,190,170,160,175,165,150,205,230,210,240,235] },
-    { name: "Revenue", data: [40,30,50,40,55,40,70,0,110,40,70,60] },
+    { name: "Sales", data: [180, 190, 170, 160, 175, 165, 150, 205, 230, 210, 240, 235] },
+    { name: "Revenue", data: [40, 30, 50, 40, 55, 40, 70, 0, 110, 40, 70, 60] },
   ];
 
   return (
