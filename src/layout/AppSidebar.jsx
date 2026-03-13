@@ -8,6 +8,7 @@ import {
   ListIcon,
   GroupIcon,
   BoxIconLine,
+  EnvelopeIcon,
 } from "@/icons";
 import { useSidebar } from "@/context/SidebarContext";
 import SidebarWidget from "@/layout/SidebarWidget";
@@ -55,6 +56,12 @@ const navItems = [
     name: "Orders",
     icon: <ListIcon />,
     path: "/orders",
+  },
+
+  {
+    name: "Messages",
+    icon: <EnvelopeIcon />,
+    path: "/messages",
   },
 ];
 

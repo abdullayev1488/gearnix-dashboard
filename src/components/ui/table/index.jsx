@@ -26,8 +26,8 @@ const TableBody = ({ children, className }) => {
 };
 
 // TableRow Component
-const TableRow = ({ children, className }) => {
-  return <tr className={className}>{children}</tr>;
+const TableRow = ({ children, className, ...rest }) => {
+  return <tr className={className} {...rest}>{children}</tr>;
 };
 
 // TableCell Component
@@ -37,7 +37,7 @@ const TableCell = ({
   className,
   colSpan,
 }) => {
-  const CellTag = isHeader ? "th": "td";
+  const CellTag = isHeader ? "th" : "td";
   return (
     <CellTag colSpan={colSpan} className={` ${className}`}>
       {children}

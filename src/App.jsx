@@ -29,6 +29,9 @@ const UserList = lazy(() => import("@/pages/User/UserList"));
 // Orders
 const OrderList = lazy(() => import("@/pages/Order/OrderList"));
 
+// Messages
+const MessageList = lazy(() => import("@/pages/Message/MessageList"));
+
 // Other
 const NotFound = lazy(() => import("./pages/OtherPage/NotFound"));
 
@@ -69,6 +72,9 @@ export default function App() {
 
               {/* Orders */}
               <Route path="/orders" element={<OrderList />} />
+
+              {/* Messages */}
+              <Route path="/messages" element={<MessageList />} />
             </Route>
 
             {/* Auth Layout */}
