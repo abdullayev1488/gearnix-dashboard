@@ -265,19 +265,22 @@ layer(base);
 }
 @utility custom-scrollbar {
   &::-webkit-scrollbar {
-    @apply size-1.5;
+    @apply size-2;
   }
 
   &::-webkit-scrollbar-track {
-    @apply rounded-full;
+    @apply bg-transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    @apply bg-gray-200 rounded-full dark:bg-gray-700;
+    @apply bg-gray-200 rounded-full dark:bg-gray-800 transition-colors;
+    background-clip: padding-box;
+    border: 2px solid transparent;
   }
-}
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #344054;
+
+  &::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-300 dark:bg-gray-700;
+  }
 }
 
 @layer utilities {

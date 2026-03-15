@@ -151,7 +151,7 @@ export default function MessageList() {
 
             {/* Table */}
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div className="max-w-full overflow-x-auto">
+                <div className="max-w-full overflow-x-auto custom-scrollbar">
                     {loading ? (
                         <div className="flex items-center justify-center py-20">
                             <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent"></div>

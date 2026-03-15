@@ -161,7 +161,7 @@ export default function CategoryList() {
 
             {/* Table */}
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div className="max-w-full overflow-x-auto">
+                <div className="max-w-full overflow-x-auto custom-scrollbar">
                     {loading ? (
                         <div className="flex items-center justify-center py-20">
                             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand-500"></div>

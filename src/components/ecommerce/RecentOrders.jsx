@@ -68,7 +68,7 @@ export default function RecentOrders() {
           </Link>
         </div>
       </div>
-      <div className="max-w-full overflow-x-auto">
+      <div className="max-w-full overflow-x-auto custom-scrollbar">
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent"></div>

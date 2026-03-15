@@ -2,7 +2,11 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import { AppLayout } from "@/layout/AppLayout";
 import { ScrollToTop } from "@/components/common/ScrollToTop";
-// import { SignIn } from "@/pages/AuthPages/SignIn";
+import { AuthProvider } from "@/context/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+
+// Auth
+const SignIn = lazy(() => import("@/pages/AuthPages/SignIn"));
 
 // Dashboard
 const Home = lazy(() => import("@/pages/Dashboard/Home"));
@@ -24,7 +28,6 @@ const EditProduct = lazy(() => import("@/pages/Product/EditProduct"));
 
 // Users
 const UserList = lazy(() => import("@/pages/User/UserList"));
-// const UserProfiles = lazy(() => import("@/pages/UserProfiles"));
 
 // Orders
 const OrderList = lazy(() => import("@/pages/Order/OrderList"));
@@ -37,7 +40,7 @@ const NotFound = lazy(() => import("./pages/OtherPage/NotFound"));
 
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <Router>
         <ScrollToTop />
         <Suspense
@@ -48,8 +51,11 @@ export default function App() {
           }
         >
           <Routes>
-            {/* Dashboard Layout */}
-            <Route element={<AppLayout />}>
+            {/* Auth */}
+            <Route path="/login" element={<SignIn />} />
+
+            {/* Dashboard Layout - Protected */}
+            <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route index path="/" element={<Home />} />
 
               {/* Users */}
@@ -77,14 +83,11 @@ export default function App() {
               <Route path="/messages" element={<MessageList />} />
             </Route>
 
-            {/* Auth Layout */}
-
-
             {/* Fallback Route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </Router>
-    </>
+    </AuthProvider>
   );
 }

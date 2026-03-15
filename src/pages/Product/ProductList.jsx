@@ -25,7 +25,7 @@ export default function ProductList() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
 
-    // Pagination state
+    // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const [paginationData, setPaginationData] = useState({
         total: 0,
@@ -33,7 +33,7 @@ export default function ProductList() {
         limit: 10
     });
 
-    // Filter states
+    // Filter
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedCategory, setSelectedCategory] = useState("");
@@ -43,12 +43,12 @@ export default function ProductList() {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
 
-    // Modal states
+    // Modal
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    // Status modal form state
+    // Status modal form
     const [statusFormData, setStatusFormData] = useState({ name: "", status: "1", price: "" });
 
     const fetchProducts = async (page = 1, search = searchTerm, status = statusFilter, category = selectedCategory, brand = selectedBrand, min = minPrice, max = maxPrice) => {
@@ -71,7 +71,6 @@ export default function ProductList() {
             setPaginationData(pagination);
             setCurrentPage(pagination.page);
 
-            // Set categories and brands if they are provided
             if (categories) setCategories(categories);
             if (brands) setBrands(brands);
         } catch (error) {
@@ -189,7 +188,6 @@ export default function ProductList() {
             />
             <PageBreadcrumb pageTitle="Products List" />
 
-            {/* Top Controls */}
             <div className="mb-6 space-y-4">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="relative w-full max-w-[300px]">
@@ -287,9 +285,8 @@ export default function ProductList() {
                 </div>
             </div>
 
-            {/* Table */}
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <div className="max-w-full overflow-x-auto">
+                <div className="max-w-full overflow-x-auto custom-scrollbar">
                     {loading ? (
                         <div className="flex items-center justify-center py-20">
                             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand-500"></div>
@@ -432,7 +429,7 @@ export default function ProductList() {
                 </div>
             </div>
 
-            {/* Pagination Controls */}
+            {/* Pagination */}
             {paginationData.pages > 1 && (
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -598,8 +595,7 @@ export default function ProductList() {
                     </div>
                 </form>
             </Modal>
-
-            {/* Delete Confirmation Modal */}
+            
             <Modal isOpen={isDeleteModalOpen} onClose={closeModals} className="max-w-[400px] p-6 text-center">
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-error-50 text-error-500 dark:bg-error-500/10">
                     <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
