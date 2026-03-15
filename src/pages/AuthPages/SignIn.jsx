@@ -12,7 +12,6 @@ export default function SignIn() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // Already logged in
     if (user) {
         return <Navigate to="/" replace />;
     }

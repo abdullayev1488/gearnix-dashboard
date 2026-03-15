@@ -50,7 +50,6 @@ export const Dropdown = ({
     }
   }, [isOpen]);
 
-  // Always render a hidden trigger div to hold the ref position
   const anchor = <div ref={triggerRef} className="hidden" />;
 
   if (!isOpen) return anchor;

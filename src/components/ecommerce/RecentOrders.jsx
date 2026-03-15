@@ -19,7 +19,6 @@ export default function RecentOrders() {
       try {
         const { data } = await api.get("/order");
         if (data.success) {
-          // Show most recent 5 orders
           setOrders(data.data.slice(-5).reverse());
         }
       } catch (error) {

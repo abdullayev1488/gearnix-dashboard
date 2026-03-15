@@ -1,36 +1,17 @@
-import { ReactNode } from "react";
-
-// Props for Table
-
-// Props for TableHeader
-
-// Props for TableBody
-
-// Props for TableRow
-
-// Props for TableCell
-
-// Table Component
 const Table = ({ children, className }) => {
   return <table className={`min-w-full  ${className}`}>{children}</table>;
 };
-
-// TableHeader Component
 const TableHeader = ({ children, className }) => {
   return <thead className={className}>{children}</thead>;
 };
 
-// TableBody Component
 const TableBody = ({ children, className }) => {
   return <tbody className={className}>{children}</tbody>;
 };
-
-// TableRow Component
 const TableRow = ({ children, className, ...rest }) => {
   return <tr className={className} {...rest}>{children}</tr>;
 };
 
-// TableCell Component
 const TableCell = ({
   children,
   isHeader = false,

@@ -77,7 +77,6 @@ export default function EcommerceMetrics() {
           key={card.label}
           className="relative group overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-white/[0.03]"
         >
-          {/* Background Decorative Circles */}
           <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br ${card.bgGradient} opacity-5 transition-transform group-hover:scale-110`} />
           <div className={`absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-gradient-to-tr ${card.bgGradient} opacity-[0.03] transition-transform group-hover:scale-110`} />
 

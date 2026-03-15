@@ -14,7 +14,6 @@ export const ThemeProvider = ({
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // This code will only run on the client side
     const savedTheme = localStorage.getItem("theme");
     const initialTheme = savedTheme || "light"; // Default to light theme
 
