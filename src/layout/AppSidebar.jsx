@@ -67,8 +67,14 @@ const navItems = [
 
 
 export const AppSidebar = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered, toggleMobileSidebar } = useSidebar();
   const location = useLocation();
+
+  const handleLinkClick = () => {
+    if (isMobileOpen) {
+      toggleMobileSidebar();
+    }
+  };
 
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [subMenuHeight, setSubMenuHeight] = useState({});
@@ -165,6 +171,7 @@ export const AppSidebar = () => {
             nav.path && (
               <Link
                 to={nav.path}
+                onClick={handleLinkClick}
                 className={`menu-item group ${isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
                   }`}
               >
@@ -198,6 +205,7 @@ export const AppSidebar = () => {
                   <li key={subItem.name}>
                     <Link
                       to={subItem.path}
+                      onClick={handleLinkClick}
                       className={`menu-dropdown-item ${isActive(subItem.path)
                         ? "menu-dropdown-item-active" : "menu-dropdown-item-inactive"
                         }`}
@@ -250,7 +258,7 @@ export const AppSidebar = () => {
         className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
           }`}
       >
-        <Link to="/">
+        <Link to="/" onClick={handleLinkClick}>
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
