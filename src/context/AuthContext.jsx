@@ -20,7 +20,6 @@ export function AuthProvider({ children }) {
                 if (data.success && data.data.role === "admin") {
                     setUser(data.data);
                 } else {
-                    // Not an admin — clear token
                     logout();
                 }
             } catch {
