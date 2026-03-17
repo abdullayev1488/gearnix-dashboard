@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     port: 9001,
     host: true,
-    allowedHosts: ['admin-gearnix.elmandev.site']
+    allowedHosts: ['admingrnx.elmandev.site']
   },
   plugins: [
 
