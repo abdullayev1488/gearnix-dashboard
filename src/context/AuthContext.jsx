@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
     }, []);
 
     const login = async (email, password) => {
-        const { data } = await api.post("/auth/admin-login", { email, password });
+        const { data } = await api.post("/auth/admin/login", { email, password });
 
         if (data.success) {
             const { user: userData, token: newToken } = data.data;

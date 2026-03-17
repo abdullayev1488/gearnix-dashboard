@@ -48,27 +48,13 @@ export default function UserList() {
         }
     };
 
-    const handleRoleChange = async (id, newRole) => {
-        try {
-            const { data } = await api.patch(`/auth/${id}/role`, { role: newRole });
-            if (data.success) {
-                setUsers((prev) =>
-                    prev.map((u) =>
-                        u._id === id ? { ...u, role: data.data.role } : u
-                    )
-                );
-                toast.success(data.message);
-            }
-        } catch (error) {
-            toast.error("Failed to update role");
-        }
-    };
-
-    const filteredUsers = users.filter(
-        (user) =>
-            user.username.toLowerCase().includes(search.toLowerCase()) ||
-            user.email.toLowerCase().includes(search.toLowerCase())
-    );
+    const filteredUsers = users
+        .filter((user) => user.role !== "admin")
+        .filter(
+            (user) =>
+                user.username.toLowerCase().includes(search.toLowerCase()) ||
+                user.email.toLowerCase().includes(search.toLowerCase())
+        );
 
     return (
         <>
@@ -112,9 +98,7 @@ export default function UserList() {
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                         Email
                                     </TableCell>
-                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                        Role
-                                    </TableCell>
+
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                         Status
                                     </TableCell>
@@ -138,16 +122,7 @@ export default function UserList() {
                                         <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
                                             {user.email}
                                         </TableCell>
-                                        <TableCell className="px-5 py-4 text-start text-theme-sm">
-                                            <select
-                                                value={user.role || "customer"}
-                                                onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                                                className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 outline-none transition focus:border-brand-500 dark:border-white/[0.1] dark:bg-white/[0.03] dark:text-white/90 cursor-pointer"
-                                            >
-                                                <option value="customer" className="dark:bg-gray-900">Customer</option>
-                                                <option value="admin" className="dark:bg-gray-900">Admin</option>
-                                            </select>
-                                        </TableCell>
+
                                         <TableCell className="px-5 py-4 text-start text-theme-sm">
                                             <Badge
                                                 size="sm"
