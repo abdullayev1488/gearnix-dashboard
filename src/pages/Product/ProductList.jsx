@@ -48,7 +48,6 @@ export default function ProductList() {
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    // Status modal form
     const [statusFormData, setStatusFormData] = useState({ name: "", status: "1", price: "" });
 
     const fetchProducts = async (page = 1, search = searchTerm, status = statusFilter, category = selectedCategory, brand = selectedBrand, min = minPrice, max = maxPrice) => {

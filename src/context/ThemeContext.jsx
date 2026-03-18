@@ -15,7 +15,7 @@ export const ThemeProvider = ({
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-    const initialTheme = savedTheme || "light"; // Default to light theme
+    const initialTheme = savedTheme || "light"; 
 
     setTheme(initialTheme);
     setIsInitialized(true);

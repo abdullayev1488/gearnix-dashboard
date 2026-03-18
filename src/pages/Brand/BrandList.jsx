@@ -21,12 +21,10 @@ export default function BrandList() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
 
-    // Modal states
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    // Status modal form state
     const [statusFormData, setStatusFormData] = useState({ name: "", status: "1" });
 
     const fetchBrands = async () => {

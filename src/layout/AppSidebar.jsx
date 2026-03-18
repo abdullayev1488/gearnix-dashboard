@@ -80,7 +80,6 @@ export const AppSidebar = () => {
   const [subMenuHeight, setSubMenuHeight] = useState({});
   const subMenuRefs = useRef({});
 
-  // const isActive = (path) => location.pathname === path;
   const isActive = useCallback(
     (path) => location.pathname === path,
     [location.pathname]

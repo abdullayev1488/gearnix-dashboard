@@ -27,12 +27,10 @@ export default function CategoryList() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
 
-    // Modal states
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-    // Status modal form state
     const [statusFormData, setStatusFormData] = useState({ name: "", status: "1" });
 
     const fetchCategories = async () => {
@@ -128,7 +126,6 @@ export default function CategoryList() {
             />
             <PageBreadcrumb pageTitle="Categories List" />
 
-            {/* Top Controls */}
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="relative w-full max-w-[300px]">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -282,7 +279,6 @@ export default function CategoryList() {
                 </div>
             </div>
 
-            {/* View Modal */}
             <Modal isOpen={isViewModalOpen} onClose={closeModals} className="max-w-[500px] p-6">
                 <div className="flex flex-col items-center text-center">
                     <div className="mb-4 h-24 w-24 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
@@ -318,7 +314,6 @@ export default function CategoryList() {
                 </div>
             </Modal>
 
-            {/* Quick Edit / Status Modal */}
             <Modal isOpen={isStatusModalOpen} onClose={closeModals} className="max-w-[500px] p-6">
                 <h3 className="mb-6 text-xl font-bold text-gray-800 dark:text-white/90 text-center">
                     Quick Update Category
@@ -373,7 +368,6 @@ export default function CategoryList() {
                 </form>
             </Modal>
 
-            {/* Delete Confirmation Modal */}
             <Modal isOpen={isDeleteModalOpen} onClose={closeModals} className="max-w-[400px] p-6 text-center">
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-error-50 text-error-500 dark:bg-error-500/10">
                     <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

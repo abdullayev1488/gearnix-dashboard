@@ -17,6 +17,7 @@ import api from "@/axios/axios";
 import toast from "react-hot-toast";
 import { EditModal } from "@/pages/Order/EditModal";
 import { DeleteModal } from "@/pages/Order/DeleteModal";
+import { OrderViewModal } from "@/pages/Order/OrderViewModal";
 
 export default function OrderList() {
     const [orders, setOrders] = useState([]);
@@ -26,11 +27,11 @@ export default function OrderList() {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
 
-    // Modal states
+
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
-    // Edit form state
     const [editFormData, setEditFormData] = useState({ orderStatus: "", paymentStatus: "" });
 
     useEffect(() => {
@@ -66,6 +67,7 @@ export default function OrderList() {
     const closeModals = () => {
         setIsEditModalOpen(false);
         setIsDeleteModalOpen(false);
+        setIsViewModalOpen(false);
         setSelectedOrder(null);
     };
 
@@ -76,6 +78,12 @@ export default function OrderList() {
             paymentStatus: order.paymentStatus,
         });
         setIsEditModalOpen(true);
+        setActiveDropdown(null);
+    };
+
+    const openViewModal = (order) => {
+        setSelectedOrder(order);
+        setIsViewModalOpen(true);
         setActiveDropdown(null);
     };
 
@@ -210,7 +218,11 @@ export default function OrderList() {
                             </TableHeader>
                             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                                 {filteredOrders.map((order) => (
-                                    <TableRow key={order._id}>
+                                    <TableRow
+                                        key={order._id}
+                                        onClick={() => openViewModal(order)}
+                                        className="cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.01] transition-colors"
+                                    >
                                         <TableCell className="px-5 py-4 text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
                                             #{order.orderNumber}
                                         </TableCell>
@@ -239,7 +251,10 @@ export default function OrderList() {
                                         <TableCell className="px-5 py-4 text-end">
                                             <div className="relative inline-block text-left">
                                                 <button
-                                                    onClick={() => handleDropdownToggle(order._id)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDropdownToggle(order._id);
+                                                    }}
                                                     className="dropdown-toggle text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                                 >
                                                     <MoreDotIcon className="size-6" />
@@ -249,6 +264,12 @@ export default function OrderList() {
                                                     onClose={() => setActiveDropdown(null)}
                                                     className="w-40"
                                                 >
+                                                    <DropdownItem
+                                                        className={dropdownItemStyles}
+                                                        onClick={() => openViewModal(order)}
+                                                    >
+                                                        View Details
+                                                    </DropdownItem>
                                                     <DropdownItem
                                                         className={dropdownItemStyles}
                                                         onClick={() => openEditModal(order)}
@@ -297,6 +318,13 @@ export default function OrderList() {
                     actionLoading={actionLoading}
                 />
             </Modal>
+
+            {/* View Modal */}
+            <OrderViewModal
+                isOpen={isViewModalOpen}
+                onClose={closeModals}
+                order={selectedOrder}
+            />
         </>
     );
 }

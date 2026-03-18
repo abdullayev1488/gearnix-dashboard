@@ -9,10 +9,13 @@ import {
 } from "@/components/ui/table";
 import Badge from "@/components/ui/badge/Badge";
 import api from "@/axios/axios";
+import { OrderViewModal } from "@/pages/Order/OrderViewModal";
 
 export default function RecentOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -29,6 +32,16 @@ export default function RecentOrders() {
     };
     fetchOrders();
   }, []);
+
+  const openViewModal = (order) => {
+    setSelectedOrder(order);
+    setIsViewModalOpen(true);
+  };
+
+  const closeViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedOrder(null);
+  };
 
   const getStatusBadge = (status) => {
     const map = { processing: "info", shipped: "warning", delivered: "success", cancelled: "error" };
@@ -103,7 +116,11 @@ export default function RecentOrders() {
 
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
               {orders.map((order) => (
-                <TableRow key={order._id}>
+                <TableRow
+                  key={order._id}
+                  onClick={() => openViewModal(order)}
+                  className="cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.01] transition-colors"
+                >
                   <TableCell className="py-3 font-medium text-gray-800 text-theme-sm dark:text-white/90">
                     #{order.orderNumber}
                   </TableCell>
@@ -139,6 +156,13 @@ export default function RecentOrders() {
           </Table>
         )}
       </div>
+
+      {/* View Modal */}
+      <OrderViewModal
+        isOpen={isViewModalOpen}
+        onClose={closeViewModal}
+        order={selectedOrder}
+      />
     </div>
   );
 }

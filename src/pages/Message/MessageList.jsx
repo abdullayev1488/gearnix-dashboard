@@ -74,7 +74,6 @@ export default function MessageList() {
     };
 
     const handleCloseViewModal = async () => {
-        // Mark as read when closing the modal
         if (selectedMessage && !selectedMessage.isRead) {
             try {
                 const { data } = await api.patch(`/contact/${selectedMessage._id}/read`);
@@ -86,7 +85,6 @@ export default function MessageList() {
                     );
                 }
             } catch (error) {
-                // Silent fail for auto-read
             }
         }
         setIsViewModalOpen(false);

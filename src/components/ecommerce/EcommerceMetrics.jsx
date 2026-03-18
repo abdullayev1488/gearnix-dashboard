@@ -108,7 +108,6 @@ export default function EcommerceMetrics() {
               </h4>
             </div>
 
-            {/* Simple SVG Sparkline */}
             <div className="w-24 h-12 mb-1">
               <svg viewBox="0 0 100 40" className="w-full h-full">
                 <path

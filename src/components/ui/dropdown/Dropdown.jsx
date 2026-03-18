@@ -27,7 +27,7 @@ export const Dropdown = ({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    window.addEventListener("scroll", onClose, true); // Close on scroll to prevent detachment issues
+    window.addEventListener("scroll", onClose, true); 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("scroll", onClose, true);

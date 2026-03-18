@@ -1,4 +1,3 @@
-// SVG Imports with Aliases
 import { ReactComponent as PlusIcon } from "@/icons/plus.svg?react";
 import { ReactComponent as CloseIcon } from "@/icons/close.svg?react";
 import { ReactComponent as BoxIcon } from "@/icons/box.svg?react";
@@ -56,7 +55,6 @@ import { ReactComponent as MoreDotIcon } from "@/icons/moredot.svg?react";
 import { ReactComponent as AlertHexaIcon } from "@/icons/alert-hexa.svg?react";
 import { ReactComponent as ErrorHexaIcon } from "@/icons/info-hexa.svg?react";
 
-// Exports
 export {
   ErrorHexaIcon,
   AlertHexaIcon,
