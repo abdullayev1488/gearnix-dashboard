@@ -5,7 +5,7 @@ import path from "path";
 
 export default defineConfig({
   server: {
-    port: 9001,
+    port: 8001,
     host: true,
     allowedHosts: ['admin-gearnix.elmandev.site'],
     proxy: {

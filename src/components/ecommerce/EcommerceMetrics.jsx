@@ -18,7 +18,7 @@ export default function EcommerceMetrics() {
     const fetchMetrics = async () => {
       try {
         const [usersRes, ordersRes, productsRes] = await Promise.all([
-          api.get("/auth"),
+          api.get("/auth?role=customer"),
           api.get("/order"),
           api.get("/product"),
         ]);
